@@ -119,7 +119,7 @@ foreach ($_SESSION['cart'] as $id => $qty) {
 <body>
 
 <header>
-    <div class="logo">A.S.98</div>
+        <a href="index.php" class="logo" style="color: #fff; text-decoration: none;">A.S.98</a>
     <div style="display: flex; align-items: center; gap: 15px;">
         <a href="seller.php" style="background: #fff; color: #111; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px;">Кабинет продавца</a>
         <div class="cart-badge">Корзина: <?= $totalCount ?> шт. (<?= number_format($totalPrice, 0, '', ' ') ?> ₽)</div>
