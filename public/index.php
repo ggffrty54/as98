@@ -163,15 +163,19 @@ foreach ($_SESSION['cart'] as $id => $qty) {
 
     <div class="grid">
         <?php foreach ($filteredProducts as $id => $item): ?>
-            <div class="card">
-
-                <img src="<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['name']) ?>" class="card-img" style="width: 100%; object-fit: cover;">
-
-                    <div class="card-body">
-                        <div class="cat-tag"><?= $item['category'] ?></div>
-                        <div class="card-title"><?= $item['name'] ?></div>
-                        <div class="card-meta">Размеры: <?= $item['size'] ?></div>
+                        <div class="card">
+                <a href="product.php?id=<?= $id ?>" style="text-decoration: none; color: inherit; display: block;">
+                    <img src="<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['name']) ?>" class="card-img" style="width: 100%; object-fit: cover;">
+                </a>
+                
+                <div class="card-body">
+                    <div class="cat-tag"><?= $item['category'] ?></div>
+                    <div class="card-title">
+                        <a href="product.php?id=<?= $id ?>" style="text-decoration: none; color: inherit;"><?= $item['name'] ?></a>
                     </div>
+                    <div class="card-meta">Размеры: <?= $item['size'] ?></div>
+                </div>
+
                     <div class="card-footer">
                         <div class="price"><?= number_format($item['price'], 0, '', ' ') ?> ₽</div>
                         <form method="POST">
