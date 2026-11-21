@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-// Базовый список товаров (такой же, как на главной странице)
 $baseProducts = [
     1 => ['name' => 'Базовая футболка Oversize', 'category' => 'Футболки', 'price' => 2490, 'size' => 'S, M, L, XL', 'image' => 'img/futbolka.jpg', 'seller' => 'A.S.98 Official', 'desc' => 'Плотный 100% хлопок премиального качества. Свободный крой оверсайз идеально подходит для повседневных образов.'],
     2 => ['name' => 'Худи из плотного футера', 'category' => 'Толстовки', 'price' => 5990, 'size' => 'M, L, XL', 'image' => 'img/cofta.jpg', 'seller' => 'A.S.98 Official', 'desc' => 'Теплое худи из трехнитки без начеса. Глубокий двойной капюшон и эластичные манжеты.'],
@@ -14,14 +13,23 @@ $baseProducts = [
 $customProducts = file_exists('products.json') ? json_decode(file_get_contents('products.json'), true) : [];
 $products = $baseProducts + ($customProducts ?: []);
 
-// Получаем ID товара из ссылки (например, product.php?id=1)
 $id = (int)($_GET['id'] ?? 0);
 $item = $products[$id] ?? null;
 
-// Добавление в корзину со страницы товара
+// Список размеров текущего товара
+$availableSizes = $item ? array_map('trim', explode(',', $item['size'])) : [];
+$selectedSize = $availableSizes[0] ?? '';
+
+// Добавление в корзину с учетом выбранного размера
 if ($item && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
+    $chosenSize = trim($_POST['selected_size'] ?? $selectedSize);
+    $selectedSize = $chosenSize;
+
+    // Увеличиваем количество товара в корзине и запоминаем выбранный размер
     $_SESSION['cart'][$id] = ($_SESSION['cart'][$id] ?? 0) + 1;
-    $addedMsg = 'Товар добавлен в вашу корзину!';
+    $_SESSION['cart_sizes'][$id][] = $chosenSize;
+
+    $addedMsg = "Товар (размер: {$chosenSize}) добавлен в вашу корзину!";
 }
 
 // Подсчет корзины для шапки
@@ -52,9 +60,28 @@ foreach ($_SESSION['cart'] ?? [] as $cId => $qty) {
         .badge { display: inline-block; background: #eee; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 10px; }
         .seller-tag { color: #666; font-size: 14px; margin-bottom: 15px; }
         .price { font-size: 28px; font-weight: bold; margin: 20px 0; }
-        .sizes { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0 25px; }
-        .size-pill { border: 1px solid #ccc; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; background: #fff; }
-        .size-pill:hover { border-color: #111; }
+        
+        /* Интерактивные кнопки размеров */
+        .sizes { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0 25px; }
+        .size-option input[type="radio"] { display: none; }
+        .size-option span {
+            display: inline-block;
+            border: 2px solid #ddd;
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            background: #fff;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .size-option span:hover { border-color: #888; }
+        .size-option input[type="radio"]:checked + span {
+            background: #111;
+            color: #fff;
+            border-color: #111;
+        }
+
         .desc { line-height: 1.6; color: #444; margin-bottom: 25px; border-top: 1px solid #eee; padding-top: 15px; }
         .btn-buy { width: 100%; background: #111; color: #fff; border: none; padding: 15px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; }
         .btn-buy:hover { background: #333; }
@@ -92,23 +119,26 @@ foreach ($_SESSION['cart'] ?? [] as $cId => $qty) {
                 
                 <div class="price"><?= number_format($item['price'], 0, '', ' ') ?> ₽</div>
 
-                <div><b>Доступные размеры:</b></div>
-                <div class="sizes">
-                    <?php foreach (explode(',', $item['size']) as $sz): ?>
-                        <span class="size-pill"><?= htmlspecialchars(trim($sz)) ?></span>
-                    <?php endforeach; ?>
-                </div>
-
-                <div class="desc">
-                    <b>Описание:</b><br>
-                    <?= htmlspecialchars($item['desc'] ?? 'Оригинальная вещь из коллекции маркетплейса A.S.98. Качественные материалы и удобная посадка.') ?>
-                </div>
-
-                <?php if (!empty($addedMsg)): ?>
-                    <div class="alert"><?= $addedMsg ?></div>
-                <?php endif; ?>
-
                 <form method="POST">
+                    <div><b>Выберите размер:</b></div>
+                    <div class="sizes">
+                        <?php foreach ($availableSizes as $sz): ?>
+                            <label class="size-option">
+                                <input type="radio" name="selected_size" value="<?= htmlspecialchars($sz) ?>" <?= $sz === $selectedSize ? 'checked' : '' ?>>
+                                <span><?= htmlspecialchars($sz) ?></span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <div class="desc">
+                        <b>Описание:</b><br>
+                        <?= htmlspecialchars($item['desc'] ?? 'Оригинальная вещь из коллекции маркетплейса A.S.98. Качественные материалы и удобная посадка.') ?>
+                    </div>
+
+                    <?php if (!empty($addedMsg)): ?>
+                        <div class="alert"><?= htmlspecialchars($addedMsg) ?></div>
+                    <?php endif; ?>
+
                     <button type="submit" name="add_to_cart" class="btn-buy">Добавить в корзину</button>
                 </form>
             </div>

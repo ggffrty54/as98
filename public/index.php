@@ -167,7 +167,7 @@ foreach ($_SESSION['cart'] as $id => $qty) {
                 <a href="product.php?id=<?= $id ?>" style="text-decoration: none; color: inherit; display: block;">
                     <img src="<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['name']) ?>" class="card-img" style="width: 100%; object-fit: cover;">
                 </a>
-                
+
                 <div class="card-body">
                     <div class="cat-tag"><?= $item['category'] ?></div>
                     <div class="card-title">
@@ -196,10 +196,14 @@ foreach ($_SESSION['cart'] as $id => $qty) {
             <?php foreach ($_SESSION['cart'] as $id => $qty): ?>
                 <?php if (!isset($products[$id])) continue; ?>
                 <div class="cart-item">
-                    <div>
-                        <strong><?= $products[$id]['name'] ?></strong><br>
-                        <small><?= $qty ?> × <?= number_format($products[$id]['price'], 0, '', ' ') ?> ₽</small>
-                    </div>
+                                            <div>
+                            <strong><?= $products[$id]['name'] ?></strong><br>
+                            <?php if (!empty($_SESSION['cart_sizes'][$id])): ?>
+                                <small style="color: #111; font-weight: bold;">Размеры: <?= htmlspecialchars(implode(', ', $_SESSION['cart_sizes'][$id])) ?></small><br>
+                            <?php endif; ?>
+                            <small><?= $qty ?> × <?= number_format($products[$id]['price'], 0, '', ' ') ?> ₽</small>
+                        </div>
+
                     <form method="POST">
                         <input type="hidden" name="remove_id" value="<?= $id ?>">
                         <button type="submit" class="btn-del" title="Удалить">✕</button>
