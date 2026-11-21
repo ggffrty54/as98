@@ -6,5 +6,21 @@
         "size": "S,M,L,XL",
         "image": "img\/item_6b0184d41ee6c.jpg",
         "seller": "A.S.98 Store"
+    },
+    "101": {
+        "name": "AS98",
+        "category": "Обувь",
+        "price": 9824,
+        "size": "40,41,42,43",
+        "image": "img\/item_6b021b3bb8bf9.jpg",
+        "seller": "A.S.98 Store"
+    },
+    "102": {
+        "name": "A.S.98 Boots Dark Black Vintage",
+        "category": "Обувь",
+        "price": 4350,
+        "size": "40,41,42,43",
+        "image": "img\/item_6b021cc21b46a.jpg",
+        "seller": "A.S.98 Store"
     }
 }
